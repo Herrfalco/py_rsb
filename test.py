@@ -1,15 +1,10 @@
 #!/usr/bin/python3
 
-"""
-Execute all rsb tests
-"""
+'Execute all rsb tests'
 
 import os
 
-def test():
-    """
-    Test function
-    """
+def _test():
     for file in sorted(os.listdir(os.getcwd())):
         if file[:2] == 'ex':
             pid = os.fork()
@@ -19,4 +14,4 @@ def test():
                 os.execv('./' + file, [file])
 
 if __name__ == '__main__':
-    test()
+    _test()

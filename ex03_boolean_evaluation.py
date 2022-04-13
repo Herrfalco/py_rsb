@@ -22,7 +22,7 @@ def test():
     for form, exp in tests:
         result = eval_formula(form)
         if result != exp:
-            print("KO\n    \"eval_formula({}) = {}\"".format(form, result))
+            print("KO\n    \"eval_formula(\'{}\') = {}\"".format(form, result))
             return
     print("OK")
 
