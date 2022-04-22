@@ -16,12 +16,12 @@ def multiplier(lhs, rhs):
 
 def test():
     "Test function"
-    print("{:30}".format("01 - Multiplier:"), end='')
+    print("{:40}".format("01 - Multiplier:"), end='')
     for i in range(0, 0xff):
         for j in range(0, 0xff):
             result = multiplier(i, j)
             if result != i * j:
-                print("KO\n    \"multiplier({}, {}) = {}\"".format(i, j, result))
+                print(f"KO\n    \"multiplier({i}, {j}) = {result}\"")
                 return
     print("OK")
 

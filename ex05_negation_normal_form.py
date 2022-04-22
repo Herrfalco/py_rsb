@@ -20,27 +20,25 @@ def test():
              ('AB|C&!', 'A!B!&C!|'),
              )
 
-    print("{:30}".format("05 - Negation normal form:"), end='')
+    print("{:40}".format("05 - Negation normal form:"), end='')
     for form, exp in tests:
         result = negation_normal_form(form)
         if result != exp:
-            print("KO\n    \"negation_normal_form(\'{}\') = \'{}\'\"".format(form, result))
+            print(f"KO\n    \"negation_normal_form(\'{form}\') = \'{result}\'\"")
             return
-    for _ in range(100):
+    for _ in range(200):
         form = Formula.random()
         old_form = copy.deepcopy(form)
         form.conv_2_nnf()
         if old_form.result != form.result:
-            print("KO\n    \"negation_normal_form(\'{}\') = \'{}\'\"".format(
-                old_form.str, form.str))
+            print(f"KO\n    \"negation_normal_form(\'{old_form.str}\') = \'{form.str}\'\"")
             return
-    for _ in range(100):
+    for _ in range(200):
         form = Formula.random(var_lst='ABC')
         old_form = copy.deepcopy(form)
         form.conv_2_nnf()
         if old_form.result != form.result:
-            print("KO\n    \"negation_normal_form(\'{}\') = \'{}\'\"".format(
-                old_form.str, form.str))
+            print(f"KO\n    \"negation_normal_form(\'{old_form.str}\') = \'{form.str}\'\"")
             return
     print("OK")
 

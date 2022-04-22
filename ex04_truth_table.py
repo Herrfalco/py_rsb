@@ -59,11 +59,11 @@ def test():
 | 0 | 1 |
 | 1 | 1 |"""))
 
-    print("{:30}".format("04 - Truth table:"), end='')
+    print("{:40}".format("04 - Truth table:"), end='')
     for form, exp in tests:
         result = Formula(form).result
         if result != exp:
-            print("KO\n    \"eval_formula(\'{}\') = \'{}\'\"".format(form, result))
+            print(f"KO\n    \"eval_formula(\'{form}\') = \'{result}\'\"")
             return
     print("OK")
 

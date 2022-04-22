@@ -5,6 +5,7 @@
 import sys
 import copy
 import random
+from karnaugh import KTable
 
 class FormIter: #pylint: disable=too-few-public-methods
     "Formula iterator"
@@ -28,7 +29,10 @@ class Formula:
                    '|': {'childs': 2,
                          'value': lambda a, b: a | b,
                          'nnf': lambda a, b: {'type': '&', 'childs': [{
-                             'type': '!', 'childs': [a]}, {'type': '!', 'childs': [b]}]}},
+                             'type': '!', 'childs': [a]}, {'type': '!', 'childs': [b]}]},
+                         'cnf': lambda a, b: {'type': '&', 'childs': [{
+                             'type': '|', 'childs': [a['childs'][0], copy.deepcopy(b)]}, {
+                                 'type': '|', 'childs': [a['childs'][1], b]}]}},
                    '^': {'childs': 2,
                          'value': lambda a, b: a ^ b,
                          'simp': lambda a, b: {'type': '&', 'childs': [{
@@ -43,9 +47,27 @@ class Formula:
                          'simp': lambda a, b: {'type': '|', 'childs': [{
                              'type': '&', 'childs': [copy.deepcopy(a), copy.deepcopy(b)]}, {
                                  'type': '!', 'childs': [{'type': '|', 'childs': [a, b]}]}]}}}
+
     @classmethod
     def _is_leaf(cls, char, sup=''):
         return char in ('01' + sup) or char.isupper()
+    def _truth_table(self):
+        letters = list({char for char in self.str if char.isupper()})
+        letters.sort()
+        vals = [sorted(letters) + ['=']]
+        for pat in range(2 ** len(letters)):
+            row = [str((pat >> shift) & 0b1) for shift in range(len(letters))]
+            new_form = self.str
+            for (i, let) in enumerate(letters):
+                new_form = new_form.replace(let, row[i])
+            row.append(str(int(Formula(new_form).result)))
+            vals.append(row)
+        result = []
+        for (i, row) in enumerate(vals):
+            result.append('| ' + ' | '.join(row) + ' |')
+            if not i:
+                result.append('|---' * len(row) + '|')
+        return '\n'.join(result)
     @classmethod
     def _error(cls):
         "Display error and exit"
@@ -67,6 +89,7 @@ class Formula:
     def random(cls, rank=3, var_lst=''):
         'Generate random formula'
         return Formula(cls._rand_util(rank, var_lst))
+
     def __init__(self, form):
         self.proc = None
         stack = []
@@ -95,12 +118,20 @@ class Formula:
         self.str = ''
         self.result = None
         self._update()
+    def _copy(self, other):
+        self.proc = other.proc
+        self.head = other.head
+        self.height = other.height
+        self.repr = other.repr
+        self.str = other.str
+        self.result = other.result
     def __iter__(self):
         return FormIter(self)
     def __repr__(self):
         return self.repr
     def __str__(self):
         return self.str
+
     def _update(self):
         self.height = 0
         self.repr = ''
@@ -178,11 +209,7 @@ class Formula:
         self.result = self._truth_table()
     def _neg_simp(self):
         new_form = Formula(''.join((node['type'] for node in self)).replace('!!', ''))
-        self.proc = new_form.proc
-        self.head = new_form.head
-        self.height = new_form.height
-        self.repr = new_form.repr
-        self.str = new_form.str
+        self._copy(new_form)
     def _sym_simp(self, node=None, parent=None):
         if not node:
             node = self.head
@@ -214,6 +241,36 @@ class Formula:
         while self._nnf_util(self.head, []):
             self._neg_simp()
         self._update()
+    def _cnf_util(self, node=None, parent=None):
+        if not node:
+            node = self.head
+        ret = False
+        for i, child in enumerate(node['childs']):
+            ret |= self._cnf_util(child, {'node': node, 'child': i})
+        new_node = None
+        if node['type'] == '|':
+            for i, child in enumerate(node['childs']):
+                if child['type'] == '&':
+                    new_node = Formula._node_types[node['type']]['cnf'](
+                        *node['childs'][:: -1 if i else 1])
+                    ret = True
+                    break
+        if new_node:
+            if parent:
+                parent['node']['childs'][parent['child']] = new_node
+            else:
+                self.head = new_node
+        return ret
+    def conv_2_cnf(self):
+        "Put Formula into conjunctive normal form"
+        if not {char for char in self.str if char.isupper()}:
+            self.conv_2_nnf()
+            while self._cnf_util():
+                pass
+            self._update()
+        else:
+            new_form = Formula(KTable.from_form(self.str).cnf())
+            self._copy(new_form)
 
 if __name__ == '__main__':
     pass
