@@ -12,7 +12,7 @@ def adder(lhs, rhs):
 
 def test():
     "Test function"
-    print("{:40}".format("00 - Adder:"), end='')
+    print("{:40}".format("\00100 - Adder:"), end='')
     for i in range(0, 0xff):
         for j in range(0, 0xff):
             result = adder(i, j)

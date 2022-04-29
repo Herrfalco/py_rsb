@@ -18,7 +18,7 @@ def test():
              ('00=', True), ('01=', False), ('10=', False), ('11=', True),
              ('1011||=', True), ('10&1!^11=|0!1>^', False), ('011^00==>101=>&', False),
              ('101=>00=11^=0>&', False))
-    print("{:40}".format("03 - Boolean evaluation:"), end='')
+    print("{:40}".format("\00103 - Boolean evaluation:"), end='')
     for form, exp in tests:
         result = eval_formula(form)
         if result != exp:

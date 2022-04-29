@@ -23,7 +23,7 @@ def test(): #pylint: disable=too-many-locals
              ('AB|!C!&', 'C!B!A!&&'),
              ('AB&CD&!|AB&|', 'AD!C!||BD!C!||&'),
              )
-    print("{:40}".format("06 - Conjunctive normal form:"), end='')
+    print("{:40}".format("\00106 - Conjunctive normal form:"), end='')
     for form, exp in tests:
         result = conjunctive_normal_form(form)
         if result != exp:

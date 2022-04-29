@@ -16,7 +16,7 @@ def multiplier(lhs, rhs):
 
 def test():
     "Test function"
-    print("{:40}".format("01 - Multiplier:"), end='')
+    print("{:40}".format("\00101 - Multiplier:"), end='')
     for i in range(0, 0xff):
         for j in range(0, 0xff):
             result = multiplier(i, j)

@@ -52,6 +52,7 @@ class Formula:
     def _is_leaf(cls, char, sup=''):
         return char in ('01' + sup) or char.isupper()
     def _truth_table(self):
+        sat = False
         letters = list({char for char in self.str if char.isupper()})
         letters.sort()
         vals = [sorted(letters) + ['=']]
@@ -60,7 +61,9 @@ class Formula:
             new_form = self.str
             for (i, let) in enumerate(letters):
                 new_form = new_form.replace(let, row[i])
-            row.append(str(int(Formula(new_form).result)))
+            result = Formula(new_form).result
+            sat |= result
+            row.append(str(int(result)))
             vals.append(row)
         result = []
         for (i, row) in enumerate(vals):
@@ -117,6 +120,7 @@ class Formula:
         self.repr = ''
         self.str = ''
         self.result = None
+        self.sat = None
         self._update()
     def _copy(self, other):
         self.proc = other.proc
@@ -125,6 +129,7 @@ class Formula:
         self.repr = other.repr
         self.str = other.str
         self.result = other.result
+        self.sat = other.sat
     def __iter__(self):
         return FormIter(self)
     def __repr__(self):
@@ -137,6 +142,7 @@ class Formula:
         self.repr = ''
         self.str = ''
         self.result = None
+        self.sat = None
         self._eval_height()
         self._eval_repr()
         self._eval_str()
@@ -182,6 +188,7 @@ class Formula:
         for node in self:
             self.str += node['type']
     def _truth_table(self):
+        sat = False
         letters = list({char for char in self.str if char.isupper()})
         letters.sort()
         vals = [sorted(letters) + ['=']]
@@ -190,14 +197,16 @@ class Formula:
             new_form = self.str
             for (i, let) in enumerate(letters):
                 new_form = new_form.replace(let, row[i])
-            row.append(str(int(Formula(new_form).result)))
+            result = Formula(new_form).result
+            sat |= result
+            row.append(str(int(result)))
             vals.append(row)
         result = []
         for (i, row) in enumerate(vals):
             result.append('| ' + ' | '.join(row) + ' |')
             if not i:
                 result.append('|---' * len(row) + '|')
-        return '\n'.join(result)
+        return '\n'.join(result), sat
     def _eval_result(self, node=None):
         if not node:
             node = self.head
@@ -206,7 +215,7 @@ class Formula:
                 *[self._eval_result(child) for child in node['childs']])
         return self.result
     def _eval_table(self):
-        self.result = self._truth_table()
+        self.result, self.sat = self._truth_table()
     def _neg_simp(self):
         new_form = Formula(''.join((node['type'] for node in self)).replace('!!', ''))
         self._copy(new_form)

@@ -20,7 +20,7 @@ def test():
              ('AB|C&!', 'A!B!&C!|'),
              )
 
-    print("{:40}".format("05 - Negation normal form:"), end='')
+    print("{:40}".format("\00105 - Negation normal form:"), end='')
     for form, exp in tests:
         result = negation_normal_form(form)
         if result != exp:
